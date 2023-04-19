@@ -1,0 +1,6 @@
+resources:
+  - ../../base/clickhouse-operator
+  - ../../base/zookeeper
+  - namespace.yaml
+  - clickhouse-cluster.yaml
+  - peerauthentication.yaml

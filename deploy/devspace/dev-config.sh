@@ -3,7 +3,7 @@
 OPERATOR_NAMESPACE="${OPERATOR_NAMESPACE:-dev}"
 METRICS_EXPORTER_NAMESPACE="${OPERATOR_NAMESPACE}"
 
-# yes, no, none, dev, release, prod, latest
+# yes, no, none, dev, release, staging, latest
 DEPLOY_OPERATOR="${DEPLOY_OPERATOR:-"no"}"
 
 echo "DEPLOY_OPERATOR=${DEPLOY_OPERATOR}"

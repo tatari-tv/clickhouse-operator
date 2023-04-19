@@ -1,0 +1,73 @@
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: system
+  namespace: altinity-cloud-managed-clickhouse
+spec:
+  defaults:
+    templates:
+      podTemplate: clickhouse-stable
+      # serviceTemplate: clickhouse-clusterip
+  configuration:
+    users:
+      admin/password_sha256_hex: '8f3c5e8b82ae2c79d5e4ff92e879d4c4c5b9f0e9ca65ac527791590feb8d7844'
+      admin/access_management: "1"
+      admin/named_collection_control: "1"
+      admin/show_named_collections: "1"
+      admin/show_named_collections_secrets: "1"
+      admin/profile: default
+      dbx_ingestion_rw/password_sha256_hex: '3d62562ac9b20e1b1099449832d5d3b948d707c248f1dccc39b06bbd1d84b6cd'
+      dbx_ingestion_rw/profile: default
+      default/password_sha256_hex: '560c861e4137727c89b0b4a9fd1edceb405eb50c7473057851b102274cc4b876'
+      default/profile: default
+    zookeeper:
+      nodes:
+        - host: zookeeper-0.clickhouse-zookeeper.svc.cluster.local
+          port: 2181
+        - host: zookeeper-1.clickhouse-zookeeper.svc.cluster.local
+          port: 2181
+        - host: zookeeper-2.clickhouse-zookeeper.svc.cluster.local
+          port: 2181
+    clusters:
+      - name: system
+        layout:
+          shardsCount: 2
+          replicasCount: 2
+        templates:
+          podTemplate: clickhouse-stable
+          volumeClaimTemplate: storage-vc-template
+          # serviceTemplate: clickhouse-clusterip @note: if we want to eliminate the ingress
+  templates:
+    podTemplates:
+      - name: clickhouse-stable
+        metadata:
+          labels:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+            - name: clickhouse
+              image: altinity/clickhouse-server:21.8.10.1.altinitystable
+              resources:
+                requests:
+                  memory: 30Gi
+                  cpu: 12
+    volumeClaimTemplates:
+      - name: storage-vc-template
+        spec:
+          storageClassName: gp3
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 250Gi
+    serviceTemplates:
+      - name: clickhouse-clusterip
+        generateName: chendpoint-{chi}
+        spec:
+          ports:
+            - name: http
+              port: 8123
+            - name: tcp
+              port: 9000
+          type: ClusterIP
+
